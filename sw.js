@@ -7,13 +7,16 @@
 // Cambiar la version forzar la actualizacion de todos los recursos
 const CACHE_NAME = 'pwa-camera-v1';
 
+// Base path para GitHub Pages - cambiar 'pwa-camara' por el nombre de tu repo si es diferente
+const BASE_PATH = '/pwa-camara';
+
 // Recursos que se cachearon durante la instalacion
 // Estos son los archivos esenciales para que la PWA funcione sin conexion
 const CACHE_RESOURCES = [
-    './',              
-    './index.html',    
-    './app.js',        
-    './manifest.json'  
+    `${BASE_PATH}/`,
+    `${BASE_PATH}/index.html`,
+    `${BASE_PATH}/app.js`,
+    `${BASE_PATH}/manifest.json`
 ];
 
 // ===================================

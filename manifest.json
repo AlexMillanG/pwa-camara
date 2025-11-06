@@ -2,12 +2,12 @@
   "name": "PWA Camara - Captura Fotos",
   "short_name": "PWA Camara",
   "description": "drip.",
-  "start_url": "./",
+  "start_url": "/pwa-camara/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "orientation": "portrait",
-  "scope": "./",
+  "scope": "/pwa-camara/",
   "icons": [
     {
       "src": "icon-192.png",

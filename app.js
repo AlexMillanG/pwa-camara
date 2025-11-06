@@ -3,9 +3,16 @@
 // ===================================
 
 // Registrar el service worker cuando la pagina carga
+// Para GitHub Pages, usamos la ruta completa del repo
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
+        // Detectar si estamos en GitHub Pages o en desarrollo local
+        const isGitHubPages = window.location.hostname.includes('github.io');
+        const swPath = isGitHubPages ? '/pwa-camara/sw.js' : './sw.js';
+
+        navigator.serviceWorker.register(swPath, {
+            scope: isGitHubPages ? '/pwa-camara/' : './'
+        })
             .then(registration => {
                 console.log('Service Worker registrado correctamente:', registration.scope);
             })
