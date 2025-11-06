@@ -60,7 +60,7 @@ async function checkForFrontCamera() {
         // Filtrar solo dispositivos de video
         const videoDevices = devices.filter(device => device.kind === 'videoinput');
 
-        console.log('C�maras disponibles:', videoDevices.length);
+        console.log('Camaras disponibles:', videoDevices.length);
 
         // Si hay mas de una camara, asumimos que hay frontal y trasera
         // Tambien verificamos si alguna tiene 'front' o 'user' en la etiqueta
@@ -156,9 +156,9 @@ function closeCamera() {
         captureBtn.classList.remove('visible');
         switchCameraBtn.classList.remove('visible');
 
-        openCameraBtn.textContent = 'Abrir C�mara';
+        openCameraBtn.textContent = 'Abrir Camara';
 
-        console.log('C�mara cerrada correctamente');
+        console.log('Camara cerrada correctamente');
     }
 }
 
@@ -221,7 +221,7 @@ function displayPhotos() {
 
     // Si no hay fotos, mostrar mensaje
     if (capturedPhotos.length === 0) {
-        photosScroll.innerHTML = '<div class="no-photos">No hay fotos a�n. Toma una foto para comenzar.</div>';
+        photosScroll.innerHTML = '<div class="no-photos">No hay fotos aún. Toma una foto para comenzar.</div>';
         return;
     }
 
@@ -260,7 +260,6 @@ function deletePhoto(photoId) {
 // EVENT LISTENERS
 // ===================================
 
-// Bot�n de abrir/cerrar c�mara
 openCameraBtn.addEventListener('click', () => {
     if (stream) {
         closeCamera();
