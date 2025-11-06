@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#000000">
+    <title>PWA Cámara</title>
+
+    <!-- Manifest para PWA -->
+    <link rel="manifest" href="/manifest.json">
+
+    <style>
+        /* Reset básico y estilos minimalistas */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header con botón de abrir cámara en la esquina superior derecha */
+        header {
+            padding: 1rem;
+            display: flex;
+            justify-content: flex-end;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Estilos para botones - minimalista */
+        button {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #000;
+            background: white;
+            color: #000;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background: #000;
+            color: white;
+        }
+
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: #ccc;
+            color: #ccc;
+        }
+
+        button:disabled:hover {
+            background: white;
+            color: #ccc;
+        }
+
+        /* Contenedor principal */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            gap: 1rem;
+        }
+
+        /* Contenedor del video - se muestra solo cuando la cámara está abierta */
+        .video-container {
+            width: 100%;
+            max-width: 640px;
+            background: #000;
+            position: relative;
+            display: none; /* Oculto por defecto */
+        }
+
+        .video-container.active {
+            display: block;
+        }
+
+        #video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Botón para cambiar entre cámara frontal/trasera */
+        #switchCameraBtn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #000;
+            display: none; /* Se muestra solo si hay cámara frontal */
+        }
+
+        #switchCameraBtn.visible {
+            display: block;
+        }
+
+        /* Botón de captura - visible solo cuando la cámara está abierta */
+        #captureBtn {
+            display: none;
+        }
+
+        #captureBtn.visible {
+            display: inline-block;
+        }
+
+        /* Canvas oculto para captura */
+        #canvas {
+            display: none;
+        }
+
+        /* Contenedor de fotos capturadas */
+        .photos-section {
+            width: 100%;
+            max-width: 640px;
+        }
+
+        .photos-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Scroll horizontal para las fotos */
+        .photos-scroll {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+            scroll-behavior: smooth;
+        }
+
+        /* Personalización del scrollbar */
+        .photos-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .photos-scroll::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+
+        .photos-scroll::-webkit-scrollbar-thumb {
+            background: #000;
+        }
+
+        /* Contenedor de cada foto */
+        .photo-item {
+            flex: 0 0 auto;
+            border: 2px solid #000;
+            background: white;
+            position: relative;
+        }
+
+        .photo-item img {
+            display: block;
+            height: 200px;
+            width: auto;
+        }
+
+        /* Botón para eliminar foto */
+        .delete-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #000;
+        }
+
+        /* Mensaje cuando no hay fotos */
+        .no-photos {
+            padding: 2rem;
+            text-align: center;
+            color: #666;
+            border: 2px dashed #ccc;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 0.75rem;
+            }
+
+            main {
+                padding: 1rem 0.5rem;
+            }
+
+            button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .photo-item img {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header con botón de abrir cámara en la esquina superior derecha -->
+    <header>
+        <button id="openCameraBtn">Abrir Cámara</button>
+    </header>
+
+    <!-- Contenido principal -->
+    <main>
+        <!-- Contenedor del video (oculto hasta que se abra la cámara) -->
+        <div class="video-container" id="videoContainer">
+            <video id="video" autoplay playsinline></video>
+            <!-- Botón para cambiar cámara (solo visible si hay cámara frontal) -->
+            <button id="switchCameraBtn">Cambiar Cámara</button>
+        </div>
+
+        <!-- Botón de captura (solo visible cuando la cámara está abierta) -->
+        <button id="captureBtn">Tomar Foto</button>
+
+        <!-- Canvas oculto para procesar la captura -->
+        <canvas id="canvas"></canvas>
+
+        <!-- Sección de fotos capturadas -->
+        <div class="photos-section">
+            <h2>Fotos Capturadas</h2>
+            <div class="photos-scroll" id="photosScroll">
+                <div class="no-photos">No hay fotos aún. Toma una foto para comenzar.</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Script principal -->
+    <script src="app.js"></script>
+</body>
+</html>
