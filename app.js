@@ -178,45 +178,12 @@ async function switchCamera() {
 // ===================================
 
 /**
- * Guarda las fotos en localStorage para persistencia
- */
-function savePhotosToCache() {
-    try {
-        localStorage.setItem('pwa-camera-photos', JSON.stringify(capturedPhotos));
-        console.log('Fotos guardadas en localStorage');
-    } catch (error) {
-        console.error('Error al guardar fotos en localStorage:', error);
-        // Si localStorage esta lleno, eliminar fotos antiguas
-        if (error.name === 'QuotaExceededError') {
-            alert('Espacio de almacenamiento lleno. Elimina algunas fotos antiguas.');
-        }
-    }
-}
-
-/**
- * Carga las fotos desde localStorage al iniciar la app
- */
-function loadPhotosFromCache() {
-    try {
-        const savedPhotos = localStorage.getItem('pwa-camera-photos');
-        if (savedPhotos) {
-            capturedPhotos = JSON.parse(savedPhotos);
-            displayPhotos();
-            console.log('Fotos cargadas desde localStorage:', capturedPhotos.length);
-        }
-    } catch (error) {
-        console.error('Error al cargar fotos desde localStorage:', error);
-        capturedPhotos = [];
-    }
-}
-
-/**
  * Captura una foto del stream de video actual
- * Utiliza un canvas para procesar la imagen
+ * Utiliza un canvas para procesar la imagen y la muestra directamente en base64
  */
 function capturePhoto() {
     if (!stream) {
-        alert('La c�mara no est� abierta');
+        alert('La camara no esta abierta');
         return;
     }
 
@@ -233,15 +200,12 @@ function capturePhoto() {
     // Convertir el canvas a una URL de imagen (base64)
     const photoDataUrl = canvas.toDataURL('image/jpeg', 0.9);
 
-    // Agregar la foto al array
+    // Agregar la foto al array (solo en memoria, no se guarda en cache)
     capturedPhotos.push({
         id: Date.now(), // ID basado en timestamp
         dataUrl: photoDataUrl,
         timestamp: new Date().toLocaleString()
     });
-
-    // Guardar en localStorage
-    savePhotosToCache();
 
     displayPhotos();
 
@@ -288,10 +252,6 @@ function displayPhotos() {
  */
 function deletePhoto(photoId) {
     capturedPhotos = capturedPhotos.filter(photo => photo.id !== photoId);
-
-    // Guardar cambios en localStorage
-    savePhotosToCache();
-
     displayPhotos();
     console.log('Foto eliminada. Total de fotos:', capturedPhotos.length);
 }
@@ -322,9 +282,6 @@ window.addEventListener('beforeunload', () => {
 // ===================================
 // INICIALIZACION
 // ===================================
-
-// Cargar fotos guardadas cuando la app inicia
-loadPhotosFromCache();
 
 console.log('App de camara PWA iniciada');
 console.log('Service Worker disponible:', 'serviceWorker' in navigator);
